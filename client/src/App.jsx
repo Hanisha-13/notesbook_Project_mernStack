@@ -1,122 +1,103 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [contact, setContact] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+
+  const [error, setError] = useState("");
+  const [data, setData] = useState([]);
+  const [editIndex,setEditIndex]=useState(null);
+
+  const onSubmitHandler = (e) => {
+    e.preventDefault();
+
+    if (
+      contact.name.trim() === "" ||
+      contact.email.trim() === "" ||
+      contact.phone.trim() === ""
+    ) {
+      setError("All fields are required");
+      return;
+    }
+
+    if(editIndex !== null){
+      const updateData = data.map((item,index)=>index === editIndex?contact:item);
+      setData(updateData);
+      setEditIndex(null);
+    }
+  else{
+    setData([...data, contact]);
+  }
+    setContact({
+      name: "",
+      email: "",
+      phone: "",
+    });
+
+    setError("");
+  };
+
+  const editItem = (index) => {
+    setContact(data[index]);
+    setEditIndex(index);
+  };
+
+  const deleteItem = (index) => {
+    setData(data.filter((item, i) => i !== index));
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div>
+      <h1>Welcome to ContactBook</h1>
 
-      <div className="ticks"></div>
+      <form onSubmit={onSubmitHandler}>
+        <input
+          type="text"
+          placeholder="Name"
+          value={contact.name}
+          onChange={(e) =>
+            setContact({ ...contact, name: e.target.value })
+          }
+        />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <input
+          type="email"
+          placeholder="Email"
+          value={contact.email}
+          onChange={(e) =>
+            setContact({ ...contact, email: e.target.value })
+          }
+        />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        <input
+          type="number"
+          placeholder="Phone"
+          value={contact.phone}
+          onChange={(e) =>
+            setContact({ ...contact, phone: e.target.value })
+          }
+        />
+
+        {error && <p>{error}</p>}
+
+        <button type="submit">{editIndex !== null?"Update Contact":"Add Contact"}</button>
+      </form>
+
+      {data.map((contact, index) => (
+        <p key={index}>
+          {contact.name}, {contact.email}, {contact.phone}
+
+          <button onClick={() => editItem(index)}>Edit</button>
+
+          <button onClick={() => deleteItem(index)}>DELETE</button>
+        </p>
+      ))}
+    </div>
+  );
 }
 
-export default App
+export default App;
+
