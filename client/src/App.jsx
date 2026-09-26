@@ -1,103 +1,75 @@
-import React, { useState } from "react";
+import React ,{useState} from "react";
 
-function App() {
-  const [contact, setContact] = useState({
-    name: "",
-    email: "",
-    phone: "",
-  });
+function App(){
+  const [contact,setContact] = useState({name:"",email:"",phonenumber:""});
+  const[data,setData] = useState([]);
+  const [error,setError]= useState({name:"",email:"",phonenumber:""});
+  const[editIndex,setEditIndex]=useState(null)
 
-  const [error, setError] = useState("");
-  const [data, setData] = useState([]);
-  const [editIndex,setEditIndex]=useState(null);
-
-  const onSubmitHandler = (e) => {
-    e.preventDefault();
-
-    if (
-      contact.name.trim() === "" ||
-      contact.email.trim() === "" ||
-      contact.phone.trim() === ""
-    ) {
-      setError("All fields are required");
-      return;
-    }
-
-    if(editIndex !== null){
-      const updateData = data.map((item,index)=>index === editIndex?contact:item);
-      setData(updateData);
-      setEditIndex(null);
-    }
-  else{
-    setData([...data, contact]);
+  const OnChangeHandler=(e)=>{
+    setContact({...contact,[e.target.name]:e.target.value});
+    setError({...error,[e.target.name]:""});
   }
-    setContact({
-      name: "",
-      email: "",
-      phone: "",
-    });
 
-    setError("");
-  };
+  const SubmitHandler=(e)=>{
+    e.preventDefault();
+    const emailRegex= /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+    if(contact.name.trim()===""){
+      return setError({...error,name:"Name is required"})
+    }
+    else if(contact.name.length<3){
+       return setError({...error,name:"Name should be at least 3 characters"})
+    }else if(contact.email.trim()===""){
+      return  setError({...error,email:"Email is required"});
+    }else if(!emailRegex.test(contact.email)){
+      return setError({...error,email:"Please enter a valid email"});
+    }else if(contact.phonenumber.trim()===""){
+      return setError({...error,phonenumber:"phonenumber must be required"});
+    }else if(contact.phonenumber.length!==10){
+      return   setError({...error,phonenumber:"Phonenumber should be 10 digits"});
+    }
+    if(editIndex !==null){
+      const updatedData=data.map((item,index)=>index===editIndex?contact:item);
+      setData(updatedData);
+      setEditIndex(null);
+      setError({name:"",email:"",phonenumber:""});
+      setContact({name:"",email:"",phonenumber:""});
+    }
+    else{
+      setData([...data,contact]);
+      setError({name:"",email:"",phonenumber:""});
+      setContact({name:"",email:"",phonenumber:""});
+    }
+  }
 
-  const editItem = (index) => {
-    setContact(data[index]);
+  const deleteHandler=(indextodelete)=>{
+    const updatedData=data.filter((item,index)=> index !== indextodelete);
+    setData(updatedData);
+  }
+
+   const EditHandler=(index)=>{
     setEditIndex(index);
-  };
-
-  const deleteItem = (index) => {
-    setData(data.filter((item, i) => i !== index));
-  };
-
-  return (
+    setContact(data[index]);
+   }
+  return(
     <div>
-      <h1>Welcome to ContactBook</h1>
-
-      <form onSubmit={onSubmitHandler}>
-        <input
-          type="text"
-          placeholder="Name"
-          value={contact.name}
-          onChange={(e) =>
-            setContact({ ...contact, name: e.target.value })
-          }
-        />
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={contact.email}
-          onChange={(e) =>
-            setContact({ ...contact, email: e.target.value })
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Phone"
-          value={contact.phone}
-          onChange={(e) =>
-            setContact({ ...contact, phone: e.target.value })
-          }
-        />
-
-        {error && <p>{error}</p>}
-
-        <button type="submit">{editIndex !== null?"Update Contact":"Add Contact"}</button>
-      </form>
-
-      {data.map((contact, index) => (
-        <p key={index}>
-          {contact.name}, {contact.email}, {contact.phone}
-
-          <button onClick={() => editItem(index)}>Edit</button>
-
-          <button onClick={() => deleteItem(index)}>DELETE</button>
-        </p>
-      ))}
-    </div>
-  );
+      <h1>Contact Form</h1>
+      <form onSubmit={SubmitHandler}>
+        <input type="text" placeholder="Enter your name"  name="name"value={contact.name} onChange={OnChangeHandler}/><br/>
+        {error.name && <span style={{color:"red"}}>{error.name}</span>}<br/>
+        <input type="email" placeholder="Enter your Email" name="email" value={contact.email} onChange={OnChangeHandler}/><br/>
+        {error.email && <span style={{color:"red"}}>{error.email}</span>}<br/>
+        <input type="number" placeholder="Enter Your phone number" name="phonenumber"value={contact.phonenumber} onChange={OnChangeHandler}/><br/>
+        {error.phonenumber && <span style={{color:"red"}}>{error.phonenumber}</span>}<br/>
+        <button>{editIndex !==null?"update User" :"Add user"}</button>
+        </form>
+        <div>
+          <ul>
+            {data.map((contact,index)=>(<li key={index}>{contact.name}{"  "}--{contact.email}{"  "}--{contact.phonenumber}{"  "} <button onClick={()=>EditHandler(index)}>Edit</button>{"  "}<button onClick={()=>deleteHandler(index)}>Delete</button> </li>))}
+          </ul>
+        </div>
+      </div>
+  )
 }
 
 export default App;
-
